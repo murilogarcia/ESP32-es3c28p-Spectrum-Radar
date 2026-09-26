@@ -52,10 +52,14 @@ struct UiStrings {
     const char* waterfall_key;
 
     // ---- Network inspector popup ----
-    // %s BSSID, %u channel, %.3f GHz, %s security, %d RSSI dBm, %d quality %, %s quality word
+    // %s BSSID, %s vendor, %u channel, %.3f GHz, %s band, %s security,
+    // %d RSSI dBm, %d quality %, %s quality word
     const char* inspector_info_fmt;
     const char* not_available;
     const char* inspector_close;
+    const char* vendor_unknown;      // OUI not in the table
+    const char* vendor_randomized;   // locally-administered (randomized/virtual) BSSID
+    const char* band_24ghz;
     const char* quality_excellent;
     const char* quality_good;
     const char* quality_weak;

@@ -34,7 +34,9 @@ The UI then runs in landscape (320×240) with three tabs:
   summary line shows the quietest (recommended) channel and the strongest SSID on the
   busiest channel.
 - **DEVICES** — scrollable list of discovered networks (SSID, channel, RSSI). Tapping one
-  opens an inspector with BSSID, channel frequency, security type and a signal-quality bar.
+  opens an inspector with BSSID, hardware vendor (from the BSSID's OUI), channel frequency,
+  band, security type and a signal-quality bar. Networks that hide their name show as
+  `<Hidden>`; their radio details (vendor, channel, signal) are still shown.
   The list keeps its scroll position across scan updates.
 - **WATERFALL** — 13×8 heatmap of channel congestion history. A new row is added after
   every scan (every 3 s), so the grid covers the last ~21 s.
@@ -56,6 +58,7 @@ The onboard WS2812 LED (GPIO42) runs a rainbow heartbeat to show the firmware is
 | [src/main.cpp](src/main.cpp) | Scanner task, UI construction and refresh logic |
 | [src/lv_port.cpp](src/lv_port.cpp) | LVGL display flush (TFT_eSPI) and touch input (FT6336), incl. landscape touch mapping |
 | [src/led_status.h](src/led_status.h) | WS2812 heartbeat |
+| [src/oui_vendors.cpp](src/oui_vendors.cpp) | Editable OUI → vendor table for the inspector (see below) |
 | [src/lang/ui_strings_en.cpp](src/lang/ui_strings_en.cpp) | All on-screen text in English (also the fallback for missing translations) |
 | [src/lang/ui_strings_pt_br.cpp](src/lang/ui_strings_pt_br.cpp) | All on-screen text in Brazilian Portuguese |
 | [src/lang/ui_languages.cpp](src/lang/ui_languages.cpp) | List of languages offered on the splash screen |
@@ -202,6 +205,39 @@ I2C correct; audio data pins swapped and amp-enable polarity inverted), the manu
 LCD Wiki page (https://www.lcdwiki.com/2.8inch_ESP32-S3_Display, used to correct the audio
 pins), and live verification on the board (I2C bus scans, ES8311 register read-back, each
 feature working).
+
+## Wi-Fi vendor lookup
+
+The network inspector shows the hardware **vendor** of each access point. It reads the
+first three bytes of the BSSID (the OUI, the block the IEEE assigns to each manufacturer)
+and looks them up in a table in [src/oui_vendors.cpp](src/oui_vendors.cpp).
+
+That table is a **small, curated set** of common consumer, networking and IoT vendors
+(a few hundred OUIs), not the full registry. An OUI that isn't in it shows as *Unknown*,
+or as *Randomized MAC* when the address is locally administered (the privacy-randomized
+or virtual MAC that phones and some guest/mesh SSIDs use).
+
+**To add a vendor**, add a line to the table in `src/oui_vendors.cpp`, keeping it sorted by
+the OUI value (the lookup binary-searches it):
+
+```cpp
+const OuiEntry OUI_TABLE[] = {
+    // ...
+    {0x240AC4, "Espressif"},
+    {0xYOUROUI, "Your Vendor"},
+    // ...
+};
+```
+
+The complete, authoritative OUI list is published by the IEEE and can be downloaded here:
+
+- Human-readable: <https://standards-oui.ieee.org/oui/oui.txt>
+- CSV: <https://standards-oui.ieee.org/oui/oui.csv>
+
+The full list has roughly 35,000 entries and is several megabytes, so it is deliberately
+not bundled; compiling all of it would waste flash. If you need wider coverage, generate a
+larger `OUI_TABLE` from `oui.csv` (for example filtered to the vendors you care about) and
+drop it into `src/oui_vendors.cpp`.
 
 ## Translating the UI
 

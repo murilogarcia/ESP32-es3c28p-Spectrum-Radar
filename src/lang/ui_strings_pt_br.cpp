@@ -38,11 +38,15 @@ UiStrings UI_STRINGS_PT_BR = {
     .waterfall_key          = "Azul=Nenhum  Verde=1-2  Amarelo=3-5  Vermelho=6+ APs",
 
     .inspector_info_fmt     = "BSSID: %s\n"
-                              "Canal: %u (%.3f GHz)\n"
+                              "Fabricante: %s\n"
+                              "Canal: %u  -  %.3f GHz  (%s)\n"
                               "Segurança: %s\n"
                               "Sinal: %d dBm (%d%% - %s)",
     .not_available          = "N/D",
     .inspector_close        = "FECHAR",
+    .vendor_unknown         = "Desconhecido",
+    .vendor_randomized      = "MAC aleatório",
+    .band_24ghz             = "2,4 GHz",
     .quality_excellent      = "Excelente",
     .quality_good           = "Bom",
     .quality_weak           = "Fraco",

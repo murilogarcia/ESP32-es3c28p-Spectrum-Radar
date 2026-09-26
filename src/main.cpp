@@ -17,6 +17,7 @@
 #include "led_status.h"
 #include "ui_strings.h"
 #include "ui_fonts.h"
+#include "oui_vendors.h"
 #include <Preferences.h>
 
 #define MAX_NETWORKS 35
@@ -139,7 +140,7 @@ void openNetworkInspector(uint32_t idx) {
     }
 
     inspector_modal = lv_obj_create(lv_layer_top());
-    lv_obj_set_size(inspector_modal, 300, 210);
+    lv_obj_set_size(inspector_modal, 300, 228);
     lv_obj_align(inspector_modal, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_bg_color(inspector_modal, lv_color_make(18, 24, 38), SEL_MAIN);
     lv_obj_set_style_bg_opa(inspector_modal, LV_OPA_COVER, SEL_MAIN);
@@ -171,10 +172,20 @@ void openNetworkInspector(uint32_t idx) {
     const char* qualDesc = (qualityPct > 70) ? g_str->quality_excellent : (qualityPct > 40 ? g_str->quality_good : g_str->quality_weak);
     float freqGHz = 2.407f + (item.channel * 0.005f);
 
+    // Vendor from the BSSID's OUI. A locally-administered BSSID (bit 0x02 of the
+    // first octet) that we can't match is a randomized/virtual MAC, not a real
+    // vendor, so label it as such instead of "Unknown".
+    const char* vendor = oui_vendor_from_bssid(item.bssidStr);
+    if (!vendor) {
+        unsigned firstOctet = (unsigned)strtoul(item.bssidStr, nullptr, 16);
+        vendor = (firstOctet & 0x02) ? g_str->vendor_randomized : g_str->vendor_unknown;
+    }
+
     char infoBuf[256];
     snprintf(infoBuf, sizeof(infoBuf), g_str->inspector_info_fmt,
              item.bssidStr[0] != '\0' ? item.bssidStr : g_str->not_available,
-             item.channel, freqGHz,
+             vendor,
+             item.channel, freqGHz, g_str->band_24ghz,
              getAuthModeName(item.authmode),
              (int)item.rssi, qualityPct, qualDesc);
     lv_obj_t* info_lbl = make_label(inspector_modal, infoBuf, &ui_font_latin_12, lv_color_make(220, 220, 230));
@@ -183,7 +194,7 @@ void openNetworkInspector(uint32_t idx) {
     // Signal strength bar
     lv_obj_t* bar = lv_bar_create(inspector_modal);
     lv_obj_set_size(bar, 276, 14);
-    lv_obj_align(bar, LV_ALIGN_TOP_LEFT, 0, 112);
+    lv_obj_align(bar, LV_ALIGN_TOP_LEFT, 0, 130);
     lv_bar_set_range(bar, 0, 100);
     lv_bar_set_value(bar, qualityPct, LV_ANIM_ON);
     lv_color_t barColor = (qualityPct > 70) ? lv_color_make(0, 230, 100)

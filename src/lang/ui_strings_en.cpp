@@ -37,11 +37,15 @@ UiStrings UI_STRINGS_EN = {
     .waterfall_key          = "KEY: Blue=None  Green=1-2  Yellow=3-5  Red=6+ APs",
 
     .inspector_info_fmt     = "BSSID: %s\n"
-                              "Channel: Ch %u (%.3f GHz)\n"
+                              "Vendor: %s\n"
+                              "Channel: %u  -  %.3f GHz  (%s)\n"
                               "Security: %s\n"
                               "Signal: %d dBm (%d%% - %s)",
     .not_available          = "N/A",
     .inspector_close        = "CLOSE INSPECTOR",
+    .vendor_unknown         = "Unknown",
+    .vendor_randomized      = "Randomized MAC",
+    .band_24ghz             = "2.4 GHz",
     .quality_excellent      = "Excellent",
     .quality_good           = "Good",
     .quality_weak           = "Weak",
