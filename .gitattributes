@@ -1,0 +1,2 @@
+# Keep the IEEE OUI snapshot byte-exact (no EOL conversion)
+tools/*.csv -text

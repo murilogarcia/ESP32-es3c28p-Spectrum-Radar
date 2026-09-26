@@ -58,7 +58,8 @@ The onboard WS2812 LED (GPIO42) runs a rainbow heartbeat to show the firmware is
 | [src/main.cpp](src/main.cpp) | Scanner task, UI construction and refresh logic |
 | [src/lv_port.cpp](src/lv_port.cpp) | LVGL display flush (TFT_eSPI) and touch input (FT6336), incl. landscape touch mapping |
 | [src/led_status.h](src/led_status.h) | WS2812 heartbeat |
-| [src/oui_vendors.cpp](src/oui_vendors.cpp) | Editable OUI → vendor table for the inspector (see below) |
+| [src/oui_vendors.cpp](src/oui_vendors.cpp) | OUI → vendor lookup for the inspector, with a user-editable override list (see below) |
+| [tools/](tools/) | OUI table generator and the IEEE registry snapshot it was built from |
 | [src/lang/ui_strings_en.cpp](src/lang/ui_strings_en.cpp) | All on-screen text in English (also the fallback for missing translations) |
 | [src/lang/ui_strings_pt_br.cpp](src/lang/ui_strings_pt_br.cpp) | All on-screen text in Brazilian Portuguese |
 | [src/lang/ui_languages.cpp](src/lang/ui_languages.cpp) | List of languages offered on the splash screen |
@@ -208,36 +209,53 @@ feature working).
 
 ## Wi-Fi vendor lookup
 
-The network inspector shows the hardware **vendor** of each access point. It reads the
-first three bytes of the BSSID (the OUI, the block the IEEE assigns to each manufacturer)
-and looks them up in a table in [src/oui_vendors.cpp](src/oui_vendors.cpp).
+The network inspector shows the **OUI** (the first three bytes of the BSSID, the block the
+IEEE assigns to each manufacturer) and the matching hardware **vendor**, e.g.
+`OUI: 24:0A:C4 (Espressif)`.
 
-That table is a **small, curated set** of common consumer, networking and IoT vendors
-(a few hundred OUIs), not the full registry. An OUI that isn't in it shows as *Unknown*,
-or as *Randomized MAC* when the address is locally administered (the privacy-randomized
-or virtual MAC that phones and some guest/mesh SSIDs use).
+The lookup covers the **complete OUI set** of a chosen list of common consumer, networking
+and IoT vendors (about 30 vendors, ~9,700 OUIs), not the whole registry. An OUI outside
+that list shows the vendor as *Unknown*, or as *Randomized MAC* when the address is locally
+administered (the privacy-randomized or virtual MAC that phones and some guest/mesh SSIDs
+use). A known vendor always wins: if the OUI matches, the vendor name is shown even when
+the locally-administered bit is set.
 
-**To add a vendor**, add a line to the table in `src/oui_vendors.cpp`, keeping it sorted by
-the OUI value (the lookup binary-searches it):
+How it is put together:
+
+| File | Role |
+|---|---|
+| [src/oui_vendors_data.h](src/oui_vendors_data.h) | Generated table of all OUIs for the common vendors. **Auto-generated, do not hand-edit.** |
+| [src/oui_vendors.cpp](src/oui_vendors.cpp) | The lookup, plus a small `USER_OUI` table for your own additions/overrides (checked first) |
+| [tools/gen_oui_table.py](tools/gen_oui_table.py) | Regenerates the data file from the IEEE registry; edit its `VENDORS` list to add a vendor |
+| [tools/oui-2026-09-26.csv](tools/oui-2026-09-26.csv) | Snapshot of the IEEE registry used to generate the current table (downloaded 2026-09-26) |
+
+**To add or override a single OUI** (no regeneration needed), add a line to `USER_OUI` in
+[src/oui_vendors.cpp](src/oui_vendors.cpp):
 
 ```cpp
-const OuiEntry OUI_TABLE[] = {
-    // ...
-    {0x240AC4, "Espressif"},
-    {0xYOUROUI, "Your Vendor"},
-    // ...
+const UserOui USER_OUI[] = {
+    {0x001122, "My Vendor"},
+    {0, nullptr}, // end marker - keep this last
 };
 ```
 
-The complete, authoritative OUI list is published by the IEEE and can be downloaded here:
+**To add a whole new vendor** (all its OUIs), add it to the `VENDORS` list in
+`tools/gen_oui_table.py` and regenerate:
+
+```bash
+# grab a fresh copy of the registry (a few MB):
+curl -sSLo oui.csv https://standards-oui.ieee.org/oui/oui.csv
+python tools/gen_oui_table.py oui.csv src/oui_vendors_data.h
+```
+
+The complete, authoritative registry is published by the IEEE:
 
 - Human-readable: <https://standards-oui.ieee.org/oui/oui.txt>
 - CSV: <https://standards-oui.ieee.org/oui/oui.csv>
 
-The full list has roughly 35,000 entries and is several megabytes, so it is deliberately
-not bundled; compiling all of it would waste flash. If you need wider coverage, generate a
-larger `OUI_TABLE` from `oui.csv` (for example filtered to the vendors you care about) and
-drop it into `src/oui_vendors.cpp`.
+The full registry has roughly 40,000 entries; bundling all of it would waste flash, so the
+table is limited to the common vendors above. The dated CSV snapshot in `tools/` is kept
+for reference and reproducibility only; it is not compiled into the firmware.
 
 ## Translating the UI
 
