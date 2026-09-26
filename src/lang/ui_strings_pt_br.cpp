@@ -38,7 +38,7 @@ UiStrings UI_STRINGS_PT_BR = {
     .waterfall_key          = "Azul=Nenhum  Verde=1-2  Amarelo=3-5  Vermelho=6+ APs",
 
     .inspector_info_fmt     = "BSSID: %s\n"
-                              "Fabricante: %s\n"
+                              "OUI: %s  (%s)\n"
                               "Canal: %u  -  %.3f GHz  (%s)\n"
                               "Segurança: %s\n"
                               "Sinal: %d dBm (%d%% - %s)",

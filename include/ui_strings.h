@@ -52,8 +52,8 @@ struct UiStrings {
     const char* waterfall_key;
 
     // ---- Network inspector popup ----
-    // %s BSSID, %s vendor, %u channel, %.3f GHz, %s band, %s security,
-    // %d RSSI dBm, %d quality %, %s quality word
+    // %s BSSID, %s OUI (first 3 bytes), %s vendor, %u channel, %.3f GHz,
+    // %s band, %s security, %d RSSI dBm, %d quality %, %s quality word
     const char* inspector_info_fmt;
     const char* not_available;
     const char* inspector_close;

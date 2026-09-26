@@ -181,10 +181,19 @@ void openNetworkInspector(uint32_t idx) {
         vendor = (firstOctet & 0x02) ? g_str->vendor_randomized : g_str->vendor_unknown;
     }
 
+    // OUI = first 3 bytes of the BSSID, e.g. "24:0A:C4" (first 8 chars of "AA:BB:CC:...").
+    char ouiStr[9];
+    if (strlen(item.bssidStr) >= 8) {
+        memcpy(ouiStr, item.bssidStr, 8);
+        ouiStr[8] = '\0';
+    } else {
+        strlcpy(ouiStr, g_str->not_available, sizeof(ouiStr));
+    }
+
     char infoBuf[256];
     snprintf(infoBuf, sizeof(infoBuf), g_str->inspector_info_fmt,
              item.bssidStr[0] != '\0' ? item.bssidStr : g_str->not_available,
-             vendor,
+             ouiStr, vendor,
              item.channel, freqGHz, g_str->band_24ghz,
              getAuthModeName(item.authmode),
              (int)item.rssi, qualityPct, qualDesc);

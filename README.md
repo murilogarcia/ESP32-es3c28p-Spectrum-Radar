@@ -34,7 +34,7 @@ The UI then runs in landscape (320×240) with three tabs:
   summary line shows the quietest (recommended) channel and the strongest SSID on the
   busiest channel.
 - **DEVICES** — scrollable list of discovered networks (SSID, channel, RSSI). Tapping one
-  opens an inspector with BSSID, hardware vendor (from the BSSID's OUI), channel frequency,
+  opens an inspector with BSSID, OUI and hardware vendor, channel frequency,
   band, security type and a signal-quality bar. Networks that hide their name show as
   `<Hidden>`; their radio details (vendor, channel, signal) are still shown.
   The list keeps its scroll position across scan updates.
