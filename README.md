@@ -287,4 +287,15 @@ board. Things to verify on first boot:
 
 ## License
 
-The original project is distributed under the MIT License.
+This project is released under the [MIT License](LICENSE). The original ESP32 Spectrum
+Radar by Earl states the MIT License in its README; this port keeps that license and adds
+its own copyright line.
+
+Third-party components keep their own licenses:
+
+| Component | Where | License |
+|---|---|---|
+| [LVGL](https://github.com/lvgl/lvgl) 8.3 | `lib/lvgl/` | MIT, see [LICENCE.txt](lib/lvgl/LICENCE.txt) |
+| [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) by Bodmer | `lib/TFT_eSPI/` | FreeBSD/MIT, see [license.txt](lib/TFT_eSPI/license.txt) |
+| [Montserrat](https://github.com/JulietaUla/Montserrat) font, converted to LVGL format | `src/fonts/` | SIL Open Font License 1.1, see [OFL-Montserrat.txt](src/fonts/OFL-Montserrat.txt) |
+| [Font Awesome Free](https://fontawesome.com) icons (LVGL symbols), converted to LVGL format | `src/fonts/` | SIL Open Font License 1.1, see [LICENSE-FontAwesome.txt](src/fonts/LICENSE-FontAwesome.txt) |
